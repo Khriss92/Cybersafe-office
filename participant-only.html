@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSafe Office Participant Play</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CyberSafe Office</p>
+        <h1>Workplace Security Challenge</h1>
+      </div>
+      <div class="status-strip">
+        <div class="status-pill">
+          <span>Score</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="status-pill">
+          <span>Risk</span>
+          <strong id="riskValue">0%</strong>
+        </div>
+        <div class="status-pill">
+          <span>Task</span>
+          <strong id="taskValue">0/14</strong>
+        </div>
+        <button id="soundToggle" class="status-pill sound-pill" type="button">
+          <span>Audio</span>
+          <strong id="soundLabel">On</strong>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="story-panel">
+        <div class="story-backdrop"></div>
+        <div class="story-content" id="sceneContainer"></div>
+      </section>
+
+      <aside class="intel-panel">
+        <div class="intel-card meter-card">
+          <div class="meter-copy">
+            <p class="eyebrow">Company Exposure</p>
+            <h2 id="riskLabel">Stable</h2>
+            <p id="riskSummary">Keep the office calm by making fast, smart security calls.</p>
+          </div>
+          <div class="meter-track" aria-hidden="true">
+            <div class="meter-fill" id="riskFill"></div>
+          </div>
+        </div>
+
+        <div class="intel-card mission-card">
+          <p class="eyebrow">Mission Bonuses</p>
+          <div class="bonus-row">
+            <div class="bonus-box">
+              <span>Correct</span>
+              <strong id="streakValue">0</strong>
+            </div>
+            <div class="bonus-box">
+              <span>Mistakes</span>
+              <strong id="mistakeValue">0</strong>
+            </div>
+          </div>
+          <p class="tiny-copy">This panel updates as the participant plays through the tasks.</p>
+        </div>
+
+        <div class="intel-card log-card">
+          <p class="eyebrow">Operations Log</p>
+          <ul id="eventLog" class="event-log"></ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <template id="startTemplate">
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">09:00 AM | Monday Shift</p>
+        <h2>Learn workplace cybersecurity through 14 simple office tasks.</h2>
+        <p>
+          This version is beginner-friendly. Read each task, make one clear decision, and see why the safe answer is correct before moving on.
+        </p>
+        <label class="name-field" for="participantNameInput">
+          <span>Participant Name</span>
+          <input id="participantNameInput" type="text" placeholder="Enter your name for certificate and score record">
+        </label>
+        <div class="panel-actions">
+          <button class="primary-btn" data-action="start-game">Start Shift</button>
+          <button class="secondary-btn" data-action="view-controls">How To Play</button>
+        </div>
+        <div id="startHint" class="start-hint hidden">
+          Read the task, click or drag the safest option, then read the explanation. Your name is used for the score record and certificate.
+        </div>
+      </div>
+
+      <div class="hero-grid">
+        <article class="scene-chip"><span>Task 1</span><strong>Inbox Drag-and-Drop</strong></article>
+        <article class="scene-chip"><span>Task 2</span><strong>Password Forge</strong></article>
+        <article class="scene-chip"><span>Task 3</span><strong>Patch + Shield</strong></article>
+        <article class="scene-chip"><span>Task 4</span><strong>IDS Hunt</strong></article>
+        <article class="scene-chip"><span>Task 5</span><strong>IPS Countermove</strong></article>
+        <article class="scene-chip"><span>Task 6</span><strong>Fail2Ban Lockdown</strong></article>
+        <article class="scene-chip"><span>Task 7</span><strong>USB Bait Trap</strong></article>
+        <article class="scene-chip"><span>Task 8</span><strong>MFA Push Storm</strong></article>
+        <article class="scene-chip"><span>Task 9</span><strong>Safe Wi-Fi And VPN</strong></article>
+        <article class="scene-chip"><span>Task 10</span><strong>Lock Your Screen</strong></article>
+        <article class="scene-chip"><span>Task 11</span><strong>Data Classification Sort</strong></article>
+        <article class="scene-chip"><span>Task 12</span><strong>Safe Website Check</strong></article>
+        <article class="scene-chip"><span>Task 13</span><strong>Backup Builder</strong></article>
+        <article class="scene-chip"><span>Task 14</span><strong>Incident Response Order</strong></article>
+      </div>
+    </div>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>

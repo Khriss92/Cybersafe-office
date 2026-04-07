@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSafe Office Supervisor Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-topic="results">
+  <div class="app-shell supervisor-shell">
+    <header class="topbar supervisor-topbar">
+      <div>
+        <p class="eyebrow">CyberSafe Office</p>
+        <h1>Supervisor Dashboard</h1>
+        <p class="supervisor-subtitle">
+          Monitor participant results, learning progress, retries, and completion records for the workplace security training game.
+        </p>
+      </div>
+
+      <div class="dashboard-actions">
+        <a class="primary-btn" href="participant-only.html">Open Participant Game</a>
+        <a class="secondary-btn" href="/api/submissions.csv">Download CSV</a>
+        <button id="refreshDashboard" class="secondary-btn" type="button">Refresh Results</button>
+      </div>
+    </header>
+
+    <main class="supervisor-grid">
+      <section class="story-panel supervisor-hero">
+        <div class="story-backdrop"></div>
+        <div class="story-content">
+          <div class="supervisor-hero-copy">
+            <div>
+              <p class="eyebrow">Research And Supervision View</p>
+              <h2>Track who played, how they performed, and where they needed help.</h2>
+              <p>
+                This dashboard is designed for supervision purposes. It highlights participant name, score, correct and wrong answers,
+                retries, time taken, risk level, and task-by-task performance so you can review learning outcomes easily.
+              </p>
+            </div>
+
+            <div class="summary-grid">
+              <article class="summary-card">
+                <span>Total Participants</span>
+                <strong id="totalParticipants">0</strong>
+              </article>
+              <article class="summary-card">
+                <span>Average Score</span>
+                <strong id="averageScore">0</strong>
+              </article>
+              <article class="summary-card">
+                <span>Average Accuracy</span>
+                <strong id="averageAccuracy">0%</strong>
+              </article>
+              <article class="summary-card">
+                <span>Average Time</span>
+                <strong id="averageTime">0m 0s</strong>
+              </article>
+              <article class="summary-card">
+                <span>Total Retries</span>
+                <strong id="totalRetries">0</strong>
+              </article>
+              <article class="summary-card">
+                <span>Highest Score</span>
+                <strong id="highestScore">0</strong>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="intel-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Submission Records</p>
+            <h2>Participant Performance Table</h2>
+          </div>
+          <p class="tiny-copy">Click any participant row to see a fuller breakdown.</p>
+        </div>
+
+        <div class="dashboard-table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>Participant</th>
+                <th>Score</th>
+                <th>Correct</th>
+                <th>Wrong</th>
+                <th>Retries</th>
+                <th>Time Taken</th>
+                <th>Risk</th>
+                <th>Rating</th>
+                <th>Completed</th>
+              </tr>
+            </thead>
+            <tbody id="submissionsTableBody">
+              <tr>
+                <td colspan="9" class="submissions-empty">Loading participant records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="intel-card supervisor-detail">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Selected Record</p>
+            <h2 id="detailTitle">Choose a participant</h2>
+          </div>
+          <p class="tiny-copy" id="detailSubtitle">The detailed supervision view will appear here.</p>
+        </div>
+
+        <div id="detailPanel" class="detail-grid">
+          <article class="detail-card detail-card-empty">
+            <h3>No participant selected yet</h3>
+            <p>Select a row from the table to inspect score, timing, retries, and task-level results.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      submissions: [],
+      selectedId: null,
+    };
+
+    const elements = {
+      totalParticipants: document.getElementById("totalParticipants"),
+      averageScore: document.getElementById("averageScore"),
+      averageAccuracy: document.getElementById("averageAccuracy"),
+      averageTime: document.getElementById("averageTime"),
+      totalRetries: document.getElementById("totalRetries"),
+      highestScore: document.getElementById("highestScore"),
+      submissionsTableBody: document.getElementById("submissionsTableBody"),
+      detailPanel: document.getElementById("detailPanel"),
+      detailTitle: document.getElementById("detailTitle"),
+      detailSubtitle: document.getElementById("detailSubtitle"),
+      refreshDashboard: document.getElementById("refreshDashboard"),
+    };
+
+    elements.refreshDashboard.addEventListener("click", loadDashboard);
+
+    loadDashboard();
+    window.setInterval(loadDashboard, 30000);
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch("/api/submissions", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Could not load participant records");
+        }
+
+        const submissions = await response.json();
+        state.submissions = Array.isArray(submissions) ? submissions : [];
+
+        if (state.submissions.length > 0 && !state.selectedId) {
+          state.selectedId = state.submissions[0].id;
+        } else if (!state.submissions.some((item) => item.id === state.selectedId)) {
+          state.selectedId = state.submissions[0] ? state.submissions[0].id : null;
+        }
+
+        renderSummary();
+        renderTable();
+        renderDetail();
+      } catch (error) {
+        elements.submissionsTableBody.innerHTML = '<tr><td colspan="9" class="submissions-empty">Dashboard could not load results. Start the local server and try again.</td></tr>';
+        elements.detailTitle.textContent = "Connection needed";
+        elements.detailSubtitle.textContent = "The dashboard reads supervision data from the local or online server.";
+        elements.detailPanel.innerHTML = `
+          <article class="detail-card detail-card-empty">
+            <h3>Server not connected</h3>
+            <p>Run <strong>start-local-server.bat</strong>, then refresh this dashboard to see participant records.</p>
+          </article>
+        `;
+        renderEmptySummary();
+      }
+    }
+
+    function renderSummary() {
+      const submissions = state.submissions;
+      if (!submissions.length) {
+        renderEmptySummary();
+        return;
+      }
+
+      const totalParticipants = submissions.length;
+      const averageScore = submissions.reduce((sum, item) => sum + numberOf(item.score), 0) / totalParticipants;
+      const averageAccuracy = submissions.reduce((sum, item) => sum + getAccuracy(item), 0) / totalParticipants;
+      const averageTime = submissions.reduce((sum, item) => sum + numberOf(item.durationSeconds), 0) / totalParticipants;
+      const totalRetries = submissions.reduce((sum, item) => sum + numberOf(item.retries), 0);
+      const highestScore = submissions.reduce((max, item) => Math.max(max, numberOf(item.score)), 0);
+
+      elements.totalParticipants.textContent = String(totalParticipants);
+      elements.averageScore.textContent = averageScore.toFixed(1);
+      elements.averageAccuracy.textContent = `${Math.round(averageAccuracy)}%`;
+      elements.averageTime.textContent = formatDuration(averageTime);
+      elements.totalRetries.textContent = String(totalRetries);
+      elements.highestScore.textContent = String(highestScore);
+    }
+
+    function renderEmptySummary() {
+      elements.totalParticipants.textContent = "0";
+      elements.averageScore.textContent = "0";
+      elements.averageAccuracy.textContent = "0%";
+      elements.averageTime.textContent = "0m 0s";
+      elements.totalRetries.textContent = "0";
+      elements.highestScore.textContent = "0";
+    }
+
+    function renderTable() {
+      const submissions = state.submissions;
+      if (!submissions.length) {
+        elements.submissionsTableBody.innerHTML = '<tr><td colspan="9" class="submissions-empty">No participant results have been saved yet.</td></tr>';
+        return;
+      }
+
+      elements.submissionsTableBody.innerHTML = submissions.map((item) => {
+        const isActive = item.id === state.selectedId ? "is-active" : "";
+        return `
+          <tr class="submission-row ${isActive}" data-id="${escapeHtml(item.id)}">
+            <td>
+              <strong>${escapeHtml(item.participantName || "Participant")}</strong>
+              <span class="table-meta">${escapeHtml(item.id)}</span>
+            </td>
+            <td>${numberOf(item.score)}</td>
+            <td>${numberOf(item.correctCount)}/${numberOf(item.totalTasks)}</td>
+            <td>${numberOf(item.wrongCount)}</td>
+            <td>${numberOf(item.retries)}</td>
+            <td>${formatDuration(item.durationSeconds)}</td>
+            <td>${numberOf(item.risk)}%</td>
+            <td>${escapeHtml(item.rating || "-")}</td>
+            <td>${formatDateTime(item.finishedAt)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      elements.submissionsTableBody.querySelectorAll(".submission-row").forEach((row) => {
+        row.addEventListener("click", () => {
+          state.selectedId = row.dataset.id;
+          renderTable();
+          renderDetail();
+        });
+      });
+    }
+
+    function renderDetail() {
+      const selected = state.submissions.find((item) => item.id === state.selectedId);
+
+      if (!selected) {
+        elements.detailTitle.textContent = "Choose a participant";
+        elements.detailSubtitle.textContent = "The detailed supervision view will appear here.";
+        elements.detailPanel.innerHTML = `
+          <article class="detail-card detail-card-empty">
+            <h3>No participant selected yet</h3>
+            <p>Select a row from the table to inspect score, timing, retries, and task-level results.</p>
+          </article>
+        `;
+        return;
+      }
+
+      const accuracy = getAccuracy(selected);
+      const taskResults = Array.isArray(selected.taskResults) ? selected.taskResults : [];
+      const retryHeavyTasks = taskResults.filter((task) => numberOf(task.retriesUsed) > 0);
+
+      elements.detailTitle.textContent = selected.participantName || "Participant";
+      elements.detailSubtitle.textContent = `Accuracy ${Math.round(accuracy)}%, score ${numberOf(selected.score)}, completed ${formatDateTime(selected.finishedAt)}.`;
+
+      elements.detailPanel.innerHTML = `
+        <article class="detail-card">
+          <h3>Participant Summary</h3>
+          <div class="detail-list">
+            <div><span>Participant</span><strong>${escapeHtml(selected.participantName || "Participant")}</strong></div>
+            <div><span>Submission ID</span><strong>${escapeHtml(selected.id)}</strong></div>
+            <div><span>Score</span><strong>${numberOf(selected.score)}</strong></div>
+            <div><span>Correct Answers</span><strong>${numberOf(selected.correctCount)} of ${numberOf(selected.totalTasks)}</strong></div>
+            <div><span>Wrong Answers</span><strong>${numberOf(selected.wrongCount)}</strong></div>
+            <div><span>Retries Used</span><strong>${numberOf(selected.retries)}</strong></div>
+            <div><span>Accuracy</span><strong>${Math.round(accuracy)}%</strong></div>
+            <div><span>Final Risk</span><strong>${numberOf(selected.risk)}%</strong></div>
+            <div><span>Rating</span><strong>${escapeHtml(selected.rating || "-")}</strong></div>
+          </div>
+        </article>
+
+        <article class="detail-card">
+          <h3>Timing And Session Data</h3>
+          <div class="detail-list">
+            <div><span>Started</span><strong>${formatDateTime(selected.startedAt)}</strong></div>
+            <div><span>Finished</span><strong>${formatDateTime(selected.finishedAt)}</strong></div>
+            <div><span>Time Taken</span><strong>${formatDuration(selected.durationSeconds)}</strong></div>
+            <div><span>Tasks Tracked</span><strong>${taskResults.length}</strong></div>
+            <div><span>Average Attempts Per Task</span><strong>${formatAttempts(taskResults)}</strong></div>
+            <div><span>Tasks With Retries</span><strong>${retryHeavyTasks.length}</strong></div>
+          </div>
+        </article>
+
+        <article class="detail-card detail-card-wide">
+          <h3>Task Breakdown</h3>
+          ${taskResults.length ? `
+            <div class="task-breakdown">
+              ${taskResults.map((task) => `
+                <div class="task-breakdown-row ${task.success ? "success" : "fail"}">
+                  <div>
+                    <strong>${escapeHtml(task.name || "Task")}</strong>
+                    <span>${task.success ? "Completed correctly" : "Completed with mistakes"}</span>
+                  </div>
+                  <div class="task-breakdown-metrics">
+                    <span>Attempts: ${numberOf(task.attempts)}</span>
+                    <span>Retries: ${numberOf(task.retriesUsed)}</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          ` : `
+            <p class="tiny-copy">No task-level results were submitted for this participant.</p>
+          `}
+        </article>
+      `;
+    }
+
+    function getAccuracy(item) {
+      const total = Math.max(1, numberOf(item.totalTasks));
+      return (numberOf(item.correctCount) / total) * 100;
+    }
+
+    function formatAttempts(taskResults) {
+      if (!taskResults.length) {
+        return "0";
+      }
+      const totalAttempts = taskResults.reduce((sum, task) => sum + numberOf(task.attempts), 0);
+      return (totalAttempts / taskResults.length).toFixed(1);
+    }
+
+    function formatDuration(value) {
+      const totalSeconds = Math.max(0, Math.round(numberOf(value)));
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${minutes}m ${seconds}s`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "-";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "-";
+      }
+
+      return date.toLocaleString();
+    }
+
+    function numberOf(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
