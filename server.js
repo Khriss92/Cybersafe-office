@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3000;
@@ -8,6 +9,9 @@ const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const DATA_FILE = path.join(DATA_DIR, "submissions.json");
 const DATABASE_URL = process.env.DATABASE_URL || "";
+const SUPERVISOR_PIN = process.env.SUPERVISOR_PIN || "2468";
+const SUPERVISOR_COOKIE_NAME = "cybersafe_supervisor";
+const SUPERVISOR_COOKIE_VALUE = crypto.createHash("sha256").update(SUPERVISOR_PIN).digest("hex").slice(0, 24);
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -32,6 +36,7 @@ const server = http.createServer(async (req, res) => {
     await storageReady;
 
     const url = new URL(req.url, `http://${req.headers.host}`);
+    const cookies = parseCookies(req.headers.cookie || "");
 
     if (req.method === "GET" && url.pathname === "/api/health") {
       return sendJson(res, 200, {
@@ -41,12 +46,43 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === "POST" && url.pathname === "/api/supervisor-login") {
+      const body = await readRequestBody(req);
+      const payload = JSON.parse(body || "{}");
+
+      if (String(payload.pin || "") !== SUPERVISOR_PIN) {
+        return sendJson(res, 401, { ok: false, error: "Invalid PIN" });
+      }
+
+      res.writeHead(200, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": `${SUPERVISOR_COOKIE_NAME}=${SUPERVISOR_COOKIE_VALUE}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`,
+      });
+      res.end(JSON.stringify({ ok: true }));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/supervisor-logout") {
+      res.writeHead(200, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": `${SUPERVISOR_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
+      });
+      res.end(JSON.stringify({ ok: true }));
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/api/submissions") {
+      if (!hasSupervisorAccess(cookies)) {
+        return sendJson(res, 401, { error: "Supervisor login required" });
+      }
       const submissions = await readSubmissions();
       return sendJson(res, 200, submissions);
     }
 
     if (req.method === "GET" && url.pathname === "/api/submissions.csv") {
+      if (!hasSupervisorAccess(cookies)) {
+        return sendJson(res, 401, { error: "Supervisor login required" });
+      }
       const submissions = await readSubmissions();
       const csv = toCsv(submissions);
       res.writeHead(200, {
@@ -71,7 +107,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET") {
-      return serveStatic(url.pathname, res);
+      return serveStatic(url.pathname, res, cookies);
     }
 
     sendJson(res, 405, { error: "Method not allowed" });
@@ -274,7 +310,7 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function serveStatic(requestPath, res) {
+function serveStatic(requestPath, res, cookies) {
   let safePath = requestPath === "/" ? "/index.html" : requestPath;
 
   if (safePath === "/participant") {
@@ -283,6 +319,26 @@ function serveStatic(requestPath, res) {
 
   if (safePath === "/supervisor") {
     safePath = "/index.html";
+  }
+
+   if (safePath === "/supervisor-login") {
+    safePath = "/supervisor-login.html";
+  }
+
+  if (safePath === "/supervisor-dashboard.html") {
+    safePath = "/index.html";
+  }
+
+  if (isSupervisorPage(safePath) && !hasSupervisorAccess(cookies)) {
+    res.writeHead(302, { Location: "/supervisor-login.html" });
+    res.end();
+    return;
+  }
+
+  if (safePath === "/supervisor-login.html" && hasSupervisorAccess(cookies)) {
+    res.writeHead(302, { Location: "/index.html" });
+    res.end();
+    return;
   }
 
   const resolved = path.normalize(path.join(ROOT, safePath));
@@ -385,4 +441,24 @@ function normalizeIsoDate(value) {
 
 function shouldUseSsl() {
   return ["true", "1", "require"].includes(String(process.env.DATABASE_SSL || process.env.PGSSLMODE || "").toLowerCase());
+}
+
+function parseCookies(cookieHeader) {
+  return cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .reduce((accumulator, part) => {
+      const [name, ...rest] = part.split("=");
+      accumulator[name] = decodeURIComponent(rest.join("="));
+      return accumulator;
+    }, {});
+}
+
+function hasSupervisorAccess(cookies) {
+  return cookies[SUPERVISOR_COOKIE_NAME] === SUPERVISOR_COOKIE_VALUE;
+}
+
+function isSupervisorPage(pathname) {
+  return pathname === "/index.html" || pathname === "/supervisor" || pathname === "/";
 }

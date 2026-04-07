@@ -1002,9 +1002,7 @@ function showRetryCard(task, canRetry, attempts) {
 function showTransitionCard(task, success) {
   const guide = TASK_GUIDES[task.id];
   const isLastTask = appState.currentTask === TASKS.length - 1;
-  const nextTask = TASKS[appState.currentTask + 1];
-  const puzzle = INTERLUDE_PUZZLES[appState.currentTask];
-  setTopicTheme(isLastTask ? "results" : nextTask.id);
+  setTopicTheme(task.id);
   sceneContainer.innerHTML = `
     <section class="task-stage">
       <div class="result-card pulse">
@@ -1016,58 +1014,80 @@ function showTransitionCard(task, success) {
           <p>${task.lesson.correctAction}</p>
           <strong>${task.lesson.reasonTitle}</strong>
           <p>${task.lesson.reasonText}</p>
-          <strong>How to fix this at work</strong>
-          <p>${guide.puzzleFix}</p>
         </div>
-        ${!isLastTask && puzzle ? `
-          <div class="interlude-card">
-            <div class="interlude-header">
-              <div>
-                <p class="eyebrow">${escapeHtml(puzzle.title)}</p>
-                <h3>${escapeHtml(puzzle.nextTaskLabel)}</h3>
-              </div>
-              <span class="tag">Mini Puzzle</span>
-            </div>
-            <p>${escapeHtml(puzzle.prompt)}</p>
-            <div class="interlude-hint">
-              <strong>Hint</strong>
-              <p>${escapeHtml(puzzle.hint)}</p>
-            </div>
-            <div id="interludeMount"></div>
-            <div id="interludeFeedback" class="interlude-feedback">
-              Solve this short warm-up to unlock the next task.
-            </div>
-          </div>
-        ` : ""}
         <div class="panel-actions">
-          <button class="primary-btn" data-action="next-task" ${!isLastTask && puzzle ? "disabled" : ""}>${isLastTask ? "See Results" : "Next Task"}</button>
+          <button class="primary-btn" data-action="next-task">${isLastTask ? "See Results" : "Continue"}</button>
         </div>
       </div>
     </section>
   `;
 
-  const nextButton = sceneContainer.querySelector('[data-action="next-task"]');
+  bindAction(sceneContainer.querySelector('[data-action="next-task"]'), () => {
+    playSound("click");
+    if (isLastTask) {
+      goToNextTask();
+      return;
+    }
+    showInterludeCard();
+  });
+}
+
+function showInterludeCard() {
+  const puzzle = INTERLUDE_PUZZLES[appState.currentTask];
+  const nextTask = TASKS[appState.currentTask + 1];
+
+  if (!puzzle || !nextTask) {
+    goToNextTask();
+    return;
+  }
+
+  setTopicTheme(nextTask.id);
+  sceneContainer.innerHTML = `
+    <section class="task-stage">
+      <div class="interlude-card pulse">
+        <div class="interlude-header">
+          <div>
+            <p class="eyebrow">Quick Puzzle</p>
+            <h3>${escapeHtml(puzzle.nextTaskLabel)}</h3>
+          </div>
+          <span class="tag">After-Task Puzzle</span>
+        </div>
+        <p>${escapeHtml(puzzle.prompt)}</p>
+        <div class="interlude-hint">
+          <strong>Hint</strong>
+          <p>${escapeHtml(puzzle.hint)}</p>
+        </div>
+        <div id="interludeMount"></div>
+        <div id="interludeFeedback" class="interlude-feedback">
+          Solve this short puzzle, then the next task will open.
+        </div>
+        <div class="panel-actions">
+          <button class="primary-btn" data-action="open-next-task" disabled>Open ${escapeHtml(puzzle.nextTaskLabel)}</button>
+        </div>
+      </div>
+    </section>
+  `;
+
+  const nextButton = sceneContainer.querySelector('[data-action="open-next-task"]');
+  const feedbackEl = document.getElementById("interludeFeedback");
+  const mount = document.getElementById("interludeMount");
+
+  mountInterludePuzzle(puzzle, mount, () => {
+    feedbackEl.textContent = puzzle.successText;
+    feedbackEl.classList.add("ready");
+    nextButton.disabled = false;
+    setLog([
+      `After-task puzzle solved for ${puzzle.nextTaskLabel}.`,
+      puzzle.successText,
+      `Next task unlocked: ${puzzle.nextTaskLabel}.`,
+    ]);
+    playSound("success");
+  });
+
   bindAction(nextButton, () => {
     playSound("click");
     goToNextTask();
   });
-
-  if (!isLastTask && puzzle) {
-    const feedbackEl = document.getElementById("interludeFeedback");
-    const mount = document.getElementById("interludeMount");
-    mountInterludePuzzle(puzzle, mount, () => {
-      feedbackEl.textContent = puzzle.successText;
-      feedbackEl.classList.add("ready");
-      nextButton.disabled = false;
-      nextButton.textContent = `Open ${puzzle.nextTaskLabel}`;
-      setLog([
-        `Warm-up puzzle solved for ${puzzle.nextTaskLabel}.`,
-        puzzle.successText,
-        `Next task unlocked: ${puzzle.nextTaskLabel}.`,
-      ]);
-      playSound("success");
-    });
-  }
 }
 
 function mountInterludePuzzle(puzzle, mount, onSolved) {
@@ -1707,19 +1727,16 @@ function renderCoachPanel(guide) {
   return `
     <section class="coach-panel">
       <article class="coach-card coach-feature">
-        <p class="eyebrow">Challenge Type</p>
+        <p class="eyebrow">Task Snapshot</p>
         <h3>${guide.challengeType}</h3>
         <p>${guide.scenario}</p>
       </article>
       <article class="coach-card">
-        <p class="eyebrow">How To Solve</p>
+        <p class="eyebrow">What To Do</p>
         <p>${guide.puzzleFix}</p>
-      </article>
-      <article class="coach-card">
-        <p class="eyebrow">What To Notice</p>
-        <ul class="coach-list">
-          ${guide.clues.map((clue) => `<li>${clue}</li>`).join("")}
-        </ul>
+        <div class="coach-chip-row">
+          ${guide.clues.map((clue) => `<span class="coach-chip">${clue}</span>`).join("")}
+        </div>
       </article>
     </section>
   `;
@@ -1777,12 +1794,11 @@ function renderResults() {
 
       <div class="task-grid two">
         <div class="result-card">
-          <h3>Research Record</h3>
+          <h3>Result Record</h3>
           <p id="serverStatusText">Data collection status: ${escapeHtml(appState.serverStatus)}</p>
           <p class="tiny-copy">Time taken: ${formatDuration(appState.sessionDurationSeconds)}. Wrong tasks: ${appState.mistakes}. If the local or online server is running, the anonymous participant result will be stored for supervision and later review.</p>
           <div class="panel-actions">
             <button class="primary-btn" data-action="save-result">Save Result Now</button>
-            <a class="secondary-btn" href="supervisor-dashboard.html">Open Supervisor Dashboard</a>
           </div>
         </div>
 
@@ -1968,7 +1984,7 @@ function renderPhishingTask() {
         <div>
           <p class="eyebrow">Task 1 - Phishing</p>
           <h2>Sort the inbox items into the correct place.</h2>
-          <p>Drag emails into Safe Inbox or Security Report. You can also click an email and use the move buttons.</p>
+          <p>Tap an email, then tap a lane or a quick action button. Dragging also works on larger screens.</p>
         </div>
         <span class="tag">Beginner Friendly</span>
       </div>
@@ -2011,6 +2027,15 @@ function renderPhishingTask() {
     });
   });
 
+  sceneContainer.querySelectorAll("[data-email-move]").forEach((button) => {
+    bindAction(button, (event) => {
+      event.stopPropagation();
+      const [emailId, zone] = button.dataset.emailMove.split(":");
+      appState.phishing.selectedId = emailId;
+      placeEmail(emailId, zone);
+    });
+  });
+
   sceneContainer.querySelectorAll(".mail-card").forEach((card) => {
     card.addEventListener("dragstart", (event) => {
       appState.phishing.selectedId = card.dataset.emailId;
@@ -2024,6 +2049,13 @@ function renderPhishingTask() {
   });
 
   sceneContainer.querySelectorAll(".drop-zone").forEach((zone) => {
+    zone.addEventListener("click", () => {
+      if (!appState.phishing.selectedId) {
+        return;
+      }
+      moveSelectedEmail(zone.dataset.zone);
+    });
+
     zone.addEventListener("dragover", (event) => {
       event.preventDefault();
       zone.classList.add("active-drop");
@@ -2616,7 +2648,7 @@ function renderDataClassificationTask() {
         <div>
           <p class="eyebrow">Task 11 - Data Classification</p>
           <h2>Sort the office documents by how sensitive they are.</h2>
-          <p>Drag each item into Public, Internal, or Confidential. You can also click and use the move buttons.</p>
+          <p>Tap a document, then tap a category lane or a quick action button. Dragging also works on larger screens.</p>
         </div>
         <span class="tag">Information Handling</span>
       </div>
@@ -2660,6 +2692,15 @@ function renderDataClassificationTask() {
     });
   });
 
+  sceneContainer.querySelectorAll("[data-doc-move]").forEach((button) => {
+    bindAction(button, (event) => {
+      event.stopPropagation();
+      const [documentId, zone] = button.dataset.docMove.split(":");
+      appState.dataSort.selectedId = documentId;
+      moveDocument(documentId, zone);
+    });
+  });
+
   sceneContainer.querySelectorAll(".document-card").forEach((card) => {
     card.addEventListener("dragstart", (event) => {
       appState.dataSort.selectedId = card.dataset.docId;
@@ -2673,6 +2714,12 @@ function renderDataClassificationTask() {
     if (!zone.dataset.docZone) {
       return;
     }
+    zone.addEventListener("click", () => {
+      if (!appState.dataSort.selectedId) {
+        return;
+      }
+      moveSelectedDocument(zone.dataset.docZone);
+    });
     zone.addEventListener("dragover", (event) => {
       event.preventDefault();
       zone.classList.add("active-drop");
@@ -2918,6 +2965,7 @@ function evaluatePassword(password) {
 }
 
 function renderMailCard(mail) {
+  const isPlaced = isEmailPlaced(mail.id);
   return `
     <article class="mail-card ${appState.phishing.selectedId === mail.id ? "selected" : ""}" data-email-id="${mail.id}" draggable="true">
       <div class="mail-meta">
@@ -2926,6 +2974,11 @@ function renderMailCard(mail) {
       </div>
       <h3>${mail.subject}</h3>
       <p class="mail-body">${mail.body}</p>
+      <div class="card-quick-actions">
+        <button class="mini-btn" data-email-move="${mail.id}:safe">Safe</button>
+        <button class="mini-btn" data-email-move="${mail.id}:report">Report</button>
+        ${isPlaced ? '<button class="mini-btn" data-email-move="' + mail.id + ':inbox">Return</button>' : ""}
+      </div>
     </article>
   `;
 }
@@ -2939,6 +2992,11 @@ function renderDocumentCard(item) {
       </div>
       <h3>${item.title}</h3>
       <p class="mail-body">${item.body}</p>
+      <div class="card-quick-actions">
+        <button class="mini-btn" data-doc-move="${item.id}:public">Public</button>
+        <button class="mini-btn" data-doc-move="${item.id}:internal">Internal</button>
+        <button class="mini-btn" data-doc-move="${item.id}:confidential">Confidential</button>
+      </div>
     </article>
   `;
 }

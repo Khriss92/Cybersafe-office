@@ -276,11 +276,15 @@ button {
 
 .result-note strong {
   display: block;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .result-note strong:first-child {
   margin-top: 0;
+}
+
+.result-note p {
+  margin: 6px 0 0;
 }
 
 .event-log {
@@ -368,11 +372,11 @@ button {
 }
 
 .coach-panel {
-  grid-template-columns: 1.15fr 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
 }
 
 .coach-card {
-  padding: 18px;
+  padding: 16px 18px;
   border-radius: 22px;
   border: 1px solid var(--line);
   background:
@@ -389,8 +393,8 @@ button {
 }
 
 .coach-card h3 {
-  margin: 0 0 10px;
-  font-size: 1.12rem;
+  margin: 0 0 8px;
+  font-size: 1.02rem;
 }
 
 .coach-list {
@@ -401,6 +405,23 @@ button {
 
 .coach-list li + li {
   margin-top: 8px;
+}
+
+.coach-chip-row,
+.card-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.coach-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-size: 0.84rem;
 }
 
 .scene-chip,
@@ -796,6 +817,10 @@ button {
   padding: 16px;
 }
 
+.mail-card h3 {
+  margin-bottom: 8px;
+}
+
 .mail-card,
 .fragment,
 .action-tile,
@@ -841,6 +866,12 @@ button {
   align-content: start;
   gap: 10px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+}
+
+.drop-zone::after {
+  content: "Tap here to move selected";
+  color: rgba(168, 191, 217, 0.72);
+  font-size: 0.76rem;
 }
 
 .drop-zone strong {
@@ -1074,6 +1105,10 @@ button {
   display: inline-block;
   color: var(--gold);
   border-color: rgba(255, 213, 110, 0.4);
+}
+
+.login-card {
+  max-width: 520px;
 }
 
 .supervisor-shell {
@@ -1502,7 +1537,8 @@ body[data-topic="results"] .story-panel::after {
   .terminal-line,
   .log-line,
   .task-header,
-  .interlude-header {
+  .interlude-header,
+  .card-quick-actions {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -1513,6 +1549,13 @@ body[data-topic="results"] .story-panel::after {
 
   .drop-zone {
     min-height: 180px;
+  }
+
+  .card-quick-actions .mini-btn,
+  .sticky-actions .secondary-btn,
+  .sticky-actions .mini-btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
@@ -1577,7 +1620,8 @@ body[data-topic="results"] .story-panel::after {
 
   .panel-actions > *,
   .sticky-actions > *,
-  .dashboard-actions > * {
+  .dashboard-actions > *,
+  .card-quick-actions > * {
     width: 100%;
     text-align: center;
   }

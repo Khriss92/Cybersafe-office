@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-topic="results">
+  <div class="app-shell supervisor-shell">
+    <main class="supervisor-grid">
+      <section class="story-panel supervisor-hero">
+        <div class="story-backdrop"></div>
+        <div class="story-content">
+          <div class="supervisor-hero-copy">
+            <div>
+              <p class="eyebrow">CyberSafe Office</p>
+              <h1>Supervisor Access</h1>
+              <p class="supervisor-subtitle">Enter the supervisor PIN to open the dashboard and participant data records.</p>
+            </div>
+
+            <div class="intel-card login-card">
+              <label class="name-field" for="supervisorPin">
+                <span>Supervisor PIN</span>
+                <input id="supervisorPin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Enter supervisor PIN">
+              </label>
+              <div class="panel-actions">
+                <button id="loginButton" class="primary-btn" type="button">Open Dashboard</button>
+                <a class="secondary-btn" href="/participant">Go To Participant Game</a>
+              </div>
+              <p id="loginStatus" class="helper-text">Use the supervisor PIN set on the server.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const pinInput = document.getElementById("supervisorPin");
+    const loginButton = document.getElementById("loginButton");
+    const loginStatus = document.getElementById("loginStatus");
+
+    loginButton.addEventListener("click", login);
+    pinInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        login();
+      }
+    });
+
+    async function login() {
+      loginStatus.textContent = "Checking PIN...";
+      try {
+        const response = await fetch("/api/supervisor-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin: pinInput.value.trim() }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Invalid PIN");
+        }
+
+        window.location.href = "/";
+      } catch (error) {
+        loginStatus.textContent = "PIN not accepted. Try again.";
+      }
+    }
+  </script>
+</body>
+</html>
