@@ -555,6 +555,203 @@ const TASK_GUIDES = {
   },
 };
 
+const INTERLUDE_PUZZLES = [
+  {
+    type: "fragment-build",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Password Strength",
+    prompt: "Build a stronger password idea by choosing only the safe password pieces.",
+    hint: "Use length and a mix of characters. Skip easy words like office or 123.",
+    successText: "Good warm-up. Long mixed passwords are much harder to guess.",
+    fragments: [
+      { id: "frag-wk", text: "Wk" },
+      { id: "frag-office", text: "office" },
+      { id: "frag-symbol", text: "@9!" },
+      { id: "frag-lp", text: "Lp" },
+      { id: "frag-123", text: "123" },
+      { id: "frag-year", text: "2026" },
+    ],
+    required: ["frag-wk", "frag-symbol", "frag-lp", "frag-year"],
+  },
+  {
+    type: "toggle-set",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Device Security",
+    prompt: "Switch on the protection steps that make a work laptop safer before the next task starts.",
+    hint: "Choose the actions that add protection, not the ones that weaken it.",
+    successText: "Nice. Updates, scans, and firewalls work best together.",
+    options: [
+      { id: "update", title: "Install updates", body: "Fix known weaknesses in the device." },
+      { id: "scan", title: "Run security scan", body: "Look for threats already on the device." },
+      { id: "firewall", title: "Keep firewall on", body: "Reduce outside exposure." },
+      { id: "silence", title: "Hide all warnings", body: "This weakens awareness." },
+    ],
+    required: ["update", "scan", "firewall"],
+  },
+  {
+    type: "counter",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "IDS Detection",
+    prompt: "Set the alert counter to the number of events that should worry an IDS analyst.",
+    hint: "Repeated failed logins and a strange admin attempt are the warning signs here.",
+    successText: "Correct. IDS is about spotting the real warning signals in the noise.",
+    min: 0,
+    max: 4,
+    target: 2,
+    labels: [
+      "Printer queue finished successfully",
+      "Five failed logins in one minute",
+      "Admin login from an unusual source",
+      "Calendar sync completed",
+    ],
+  },
+  {
+    type: "match-pair",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "IPS Prevention",
+    prompt: "Match the dangerous source with the action that actually stops it.",
+    hint: "Once the hostile source is known, prevention means blocking it.",
+    successText: "Exactly. IPS is about stopping a confirmed threat, not just watching it.",
+    leftLabel: "Source",
+    rightLabel: "Response",
+    optionsLeft: [
+      { id: "safe-ip", title: "10.0.0.18", body: "Known office printer server" },
+      { id: "bad-ip", title: "185.44.22.91", body: "Linked to repeated hostile logins" },
+      { id: "guest-ip", title: "10.0.0.44", body: "Temporary guest network device" },
+    ],
+    optionsRight: [
+      { id: "watch", title: "Keep watching only", body: "No prevention action" },
+      { id: "block", title: "Block source IP", body: "Stops the known attack source" },
+      { id: "share", title: "Share password", body: "Never safe" },
+    ],
+    correctLeft: "bad-ip",
+    correctRight: "block",
+  },
+  {
+    type: "stepper",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Fail2Ban",
+    prompt: "Set a sensible failed-login threshold before automatic blocking starts.",
+    hint: "It should be strict enough to stop abuse early without being extreme.",
+    successText: "Good choice. A reasonable threshold helps stop brute-force attempts.",
+    min: 3,
+    max: 12,
+    target: 5,
+    unit: "retries",
+  },
+  {
+    type: "quarantine-pick",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "USB Safety",
+    prompt: "Choose the riskiest device and send it to quarantine.",
+    hint: "Unknown removable devices with no trusted owner should not be plugged in.",
+    successText: "Well done. Unknown USB devices should be isolated, not explored.",
+    options: [
+      { id: "mystery", title: "Loose USB marked Salary Update", body: "No owner, no company tag, found in the car park." },
+      { id: "tagged", title: "IT-issued security key", body: "Has a company asset sticker." },
+      { id: "sealed", title: "Sealed headset dongle", body: "Still inside approved office packaging." },
+    ],
+    correct: "mystery",
+  },
+  {
+    type: "ordered-sequence",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "MFA Push",
+    prompt: "Tap the response buttons in the safest order for an unexpected sign-in prompt.",
+    hint: "Stop the unsafe request first, then tell the right team what happened.",
+    successText: "Perfect. Deny first, then report so security can investigate.",
+    options: [
+      { id: "deny", title: "Deny the prompt" },
+      { id: "approve", title: "Approve to stop notifications" },
+      { id: "report", title: "Report the incident" },
+    ],
+    sequence: ["deny", "report"],
+  },
+  {
+    type: "paired-choice",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Wi-Fi And VPN",
+    prompt: "Pick the safer connection plan for working away from the office.",
+    hint: "Use a trusted connection and keep the company VPN on.",
+    successText: "Great. A safer connection plus VPN gives better protection outside the office.",
+    connections: [
+      { id: "public-wifi", title: "Free cafe Wi-Fi", body: "Open to the public" },
+      { id: "hotspot", title: "Phone hotspot", body: "More controlled connection" },
+      { id: "shared", title: "Unknown shared laptop tether", body: "Not trusted" },
+    ],
+    correctConnection: "hotspot",
+  },
+  {
+    type: "combo-build",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Screen Lock",
+    prompt: "Build the keyboard shortcut that locks a Windows workstation quickly.",
+    hint: "Choose the two keys that office workers use to lock the screen fast.",
+    successText: "Correct. A quick lock shortcut helps build a strong desk habit.",
+    keys: ["Win", "L", "Ctrl", "Alt"],
+    required: ["Win", "L"],
+  },
+  {
+    type: "classify-card",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Data Classification",
+    prompt: "Choose the best label for this office item: Weekly team rota for internal staff only.",
+    hint: "It is useful inside the company, but it is not meant for public release.",
+    successText: "Yes. Internal information should stay within the company.",
+    labels: ["Public", "Internal", "Confidential"],
+    correct: "Internal",
+  },
+  {
+    type: "url-segment",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Safe Website Check",
+    prompt: "Tap the part of this login address that makes it suspicious.",
+    hint: "Look for tiny spelling tricks attackers use to fool busy workers.",
+    successText: "Nice catch. Lookalike spelling is a common phishing website trick.",
+    segments: [
+      { id: "seg-https", label: "https://" },
+      { id: "seg-lookalike", label: "porta1" },
+      { id: "seg-domain", label: ".company.com" },
+    ],
+    correct: "seg-lookalike",
+  },
+  {
+    type: "slot-builder",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Backup Builder",
+    prompt: "Fill the three backup plan slots with the safest choices.",
+    hint: "Choose more than one backup copy and keep backups running regularly.",
+    successText: "Strong plan. Multiple copies and regular schedules improve recovery.",
+    slots: 3,
+    options: [
+      { id: "cloud", title: "Cloud backup copy" },
+      { id: "external", title: "External backup copy" },
+      { id: "schedule", title: "Regular backup schedule" },
+      { id: "same-device", title: "Only keep files on the same laptop" },
+      { id: "never-test", title: "Never review backup setup" },
+    ],
+    required: ["cloud", "external", "schedule"],
+  },
+  {
+    type: "timeline-rank",
+    title: "Next Mission Warm-Up",
+    nextTaskLabel: "Incident Response Order",
+    prompt: "Give these three incident actions their correct order.",
+    hint: "Report early, secure access quickly, then share the details the team needs.",
+    successText: "Exactly. Clear order helps reduce damage and confusion during incidents.",
+    steps: [
+      { id: "report", title: "Report the problem" },
+      { id: "secure", title: "Secure access" },
+      { id: "details", title: "Share useful details" },
+    ],
+    correctRanks: {
+      report: 1,
+      secure: 2,
+      details: 3,
+    },
+  },
+];
+
 soundToggle.addEventListener("click", () => {
   appState.soundEnabled = !appState.soundEnabled;
   ensureAudioReady();
@@ -632,9 +829,6 @@ function renderStartScreen() {
   sceneContainer.innerHTML = "";
   sceneContainer.appendChild(document.getElementById("startTemplate").content.cloneNode(true));
 
-  const nameInput = document.getElementById("participantNameInput");
-  nameInput.value = appState.participantName;
-
   bindAction(sceneContainer.querySelector('[data-action="start-game"]'), startGame);
   bindAction(sceneContainer.querySelector('[data-action="view-controls"]'), () => {
     playSound("click");
@@ -644,7 +838,7 @@ function renderStartScreen() {
   setLog([
     "Welcome. This version is designed for beginner participants.",
     "There are 14 short tasks with a clear explanation after each one.",
-    "Enter a name so the certificate and score record can use it.",
+    "Complete the game to unlock a trophy badge and save the result for supervision.",
   ]);
 
   updateHud();
@@ -653,10 +847,7 @@ function renderStartScreen() {
 function startGame() {
   ensureAudioReady();
   playSound("click");
-
-  const nameInput = document.getElementById("participantNameInput");
-  const enteredName = nameInput ? nameInput.value.trim() : "";
-  appState.participantName = enteredName || appState.participantName || "Participant";
+  appState.participantName = generateParticipantAlias();
   appState.started = true;
   appState.currentTask = 0;
   appState.score = 0;
@@ -810,6 +1001,10 @@ function showRetryCard(task, canRetry, attempts) {
 
 function showTransitionCard(task, success) {
   const guide = TASK_GUIDES[task.id];
+  const isLastTask = appState.currentTask === TASKS.length - 1;
+  const nextTask = TASKS[appState.currentTask + 1];
+  const puzzle = INTERLUDE_PUZZLES[appState.currentTask];
+  setTopicTheme(isLastTask ? "results" : nextTask.id);
   sceneContainer.innerHTML = `
     <section class="task-stage">
       <div class="result-card pulse">
@@ -824,17 +1019,688 @@ function showTransitionCard(task, success) {
           <strong>How to fix this at work</strong>
           <p>${guide.puzzleFix}</p>
         </div>
+        ${!isLastTask && puzzle ? `
+          <div class="interlude-card">
+            <div class="interlude-header">
+              <div>
+                <p class="eyebrow">${escapeHtml(puzzle.title)}</p>
+                <h3>${escapeHtml(puzzle.nextTaskLabel)}</h3>
+              </div>
+              <span class="tag">Mini Puzzle</span>
+            </div>
+            <p>${escapeHtml(puzzle.prompt)}</p>
+            <div class="interlude-hint">
+              <strong>Hint</strong>
+              <p>${escapeHtml(puzzle.hint)}</p>
+            </div>
+            <div id="interludeMount"></div>
+            <div id="interludeFeedback" class="interlude-feedback">
+              Solve this short warm-up to unlock the next task.
+            </div>
+          </div>
+        ` : ""}
         <div class="panel-actions">
-          <button class="primary-btn" data-action="next-task">${appState.currentTask === TASKS.length - 1 ? "See Results" : "Next Task"}</button>
+          <button class="primary-btn" data-action="next-task" ${!isLastTask && puzzle ? "disabled" : ""}>${isLastTask ? "See Results" : "Next Task"}</button>
         </div>
       </div>
     </section>
   `;
 
-  bindAction(sceneContainer.querySelector('[data-action="next-task"]'), () => {
+  const nextButton = sceneContainer.querySelector('[data-action="next-task"]');
+  bindAction(nextButton, () => {
     playSound("click");
     goToNextTask();
   });
+
+  if (!isLastTask && puzzle) {
+    const feedbackEl = document.getElementById("interludeFeedback");
+    const mount = document.getElementById("interludeMount");
+    mountInterludePuzzle(puzzle, mount, () => {
+      feedbackEl.textContent = puzzle.successText;
+      feedbackEl.classList.add("ready");
+      nextButton.disabled = false;
+      nextButton.textContent = `Open ${puzzle.nextTaskLabel}`;
+      setLog([
+        `Warm-up puzzle solved for ${puzzle.nextTaskLabel}.`,
+        puzzle.successText,
+        `Next task unlocked: ${puzzle.nextTaskLabel}.`,
+      ]);
+      playSound("success");
+    });
+  }
+}
+
+function mountInterludePuzzle(puzzle, mount, onSolved) {
+  let solved = false;
+  const unlock = () => {
+    if (solved) {
+      return;
+    }
+    solved = true;
+    onSolved();
+  };
+
+  const renderers = {
+    "fragment-build": renderInterludeFragmentBuild,
+    "toggle-set": renderInterludeToggleSet,
+    counter: renderInterludeCounter,
+    "match-pair": renderInterludeMatchPair,
+    stepper: renderInterludeStepper,
+    "quarantine-pick": renderInterludeQuarantinePick,
+    "ordered-sequence": renderInterludeOrderedSequence,
+    "paired-choice": renderInterludePairedChoice,
+    "combo-build": renderInterludeComboBuild,
+    "classify-card": renderInterludeClassifyCard,
+    "url-segment": renderInterludeUrlSegment,
+    "slot-builder": renderInterludeSlotBuilder,
+    "timeline-rank": renderInterludeTimelineRank,
+  };
+
+  const renderer = renderers[puzzle.type];
+  if (!renderer) {
+    mount.innerHTML = `<p class="tiny-copy">The next task is ready.</p>`;
+    unlock();
+    return;
+  }
+
+  renderer(puzzle, mount, unlock);
+}
+
+function renderInterludeFragmentBuild(puzzle, mount, unlock) {
+  const state = { selected: new Set() };
+  const required = new Set(puzzle.required);
+
+  const render = () => {
+    const builtValue = puzzle.fragments
+      .filter((item) => state.selected.has(item.id))
+      .map((item) => item.text)
+      .join("");
+
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="fragment-grid">
+          ${puzzle.fragments.map((item) => `
+            <button class="fragment ${state.selected.has(item.id) ? "selected" : ""}" data-fragment="${item.id}">
+              <strong>${escapeHtml(item.text)}</strong>
+            </button>
+          `).join("")}
+        </div>
+        <div class="mini-display-card">
+          <span>Preview</span>
+          <strong>${escapeHtml(builtValue || "Select the safe pieces")}</strong>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Check Puzzle</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-fragment]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        toggleSetSelection(state.selected, button.dataset.fragment);
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.selected.size === required.size && [...required].every((id) => state.selected.has(id))) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeToggleSet(puzzle, mount, unlock) {
+  const state = { selected: new Set() };
+  const required = new Set(puzzle.required);
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="toggle-list">
+          ${puzzle.options.map((item) => `
+            <button class="toggle-tile ${state.selected.has(item.id) ? "active" : ""}" data-option="${item.id}">
+              <div class="toggle-header">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span class="toggle-state">${state.selected.has(item.id) ? "On" : "Off"}</span>
+              </div>
+              <p class="tiny-copy">${escapeHtml(item.body)}</p>
+            </button>
+          `).join("")}
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Check Puzzle</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-option]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        toggleSetSelection(state.selected, button.dataset.option);
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.selected.size === required.size && [...required].every((id) => state.selected.has(id))) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeCounter(puzzle, mount, unlock) {
+  const state = { value: 0 };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-list">
+          ${puzzle.labels.map((label) => `<div class="mini-list-row">${escapeHtml(label)}</div>`).join("")}
+        </div>
+        <div class="mini-counter">
+          <button class="secondary-btn" data-action="minus">-</button>
+          <div class="mini-counter-value">
+            <span>Suspicious alerts</span>
+            <strong>${state.value}</strong>
+          </div>
+          <button class="secondary-btn" data-action="plus">+</button>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Check Puzzle</button>
+        </div>
+      </div>
+    `;
+
+    bindAction(mount.querySelector('[data-action="minus"]'), () => {
+      playSound("click");
+      state.value = Math.max(puzzle.min, state.value - 1);
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="plus"]'), () => {
+      playSound("click");
+      state.value = Math.min(puzzle.max, state.value + 1);
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.value === puzzle.target) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeMatchPair(puzzle, mount, unlock) {
+  const state = { left: null, right: null };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-two-col">
+          <div class="mini-column">
+            <span class="eyebrow">${escapeHtml(puzzle.leftLabel)}</span>
+            ${puzzle.optionsLeft.map((item) => `
+              <button class="mini-choice ${state.left === item.id ? "selected" : ""}" data-left="${item.id}">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span>${escapeHtml(item.body)}</span>
+              </button>
+            `).join("")}
+          </div>
+          <div class="mini-column">
+            <span class="eyebrow">${escapeHtml(puzzle.rightLabel)}</span>
+            ${puzzle.optionsRight.map((item) => `
+              <button class="mini-choice ${state.right === item.id ? "selected" : ""}" data-right="${item.id}">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span>${escapeHtml(item.body)}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Lock Match</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-left]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.left = button.dataset.left;
+        render();
+      });
+    });
+
+    mount.querySelectorAll("[data-right]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.right = button.dataset.right;
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.left === puzzle.correctLeft && state.right === puzzle.correctRight) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeStepper(puzzle, mount, unlock) {
+  const state = { value: puzzle.min };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-counter mini-counter-wide">
+          <button class="secondary-btn" data-action="minus">-</button>
+          <div class="mini-counter-value">
+            <span>Threshold</span>
+            <strong>${state.value} ${escapeHtml(puzzle.unit)}</strong>
+          </div>
+          <button class="secondary-btn" data-action="plus">+</button>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Apply Threshold</button>
+        </div>
+      </div>
+    `;
+
+    bindAction(mount.querySelector('[data-action="minus"]'), () => {
+      playSound("click");
+      state.value = Math.max(puzzle.min, state.value - 1);
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="plus"]'), () => {
+      playSound("click");
+      state.value = Math.min(puzzle.max, state.value + 1);
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.value === puzzle.target) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeQuarantinePick(puzzle, mount, unlock) {
+  const state = { selected: null, quarantined: null };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-choice-grid">
+          ${puzzle.options.map((item) => `
+            <button class="mini-choice ${state.selected === item.id ? "selected" : ""}" data-pick="${item.id}">
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>${escapeHtml(item.body)}</span>
+            </button>
+          `).join("")}
+        </div>
+        <button class="mini-drop ${state.quarantined ? "active-drop" : ""}" data-action="quarantine">
+          <strong>Quarantine Tray</strong>
+          <small>${state.quarantined ? escapeHtml(puzzle.options.find((item) => item.id === state.quarantined)?.title || "") : "Select a device, then tap here to move it safely."}</small>
+        </button>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-pick]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.selected = button.dataset.pick;
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="quarantine"]'), () => {
+      if (!state.selected) {
+        return;
+      }
+      playSound("click");
+      state.quarantined = state.selected;
+      render();
+      if (state.quarantined === puzzle.correct) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeOrderedSequence(puzzle, mount, unlock) {
+  const state = { sequence: [] };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-choice-grid">
+          ${puzzle.options.map((item) => `
+            <button class="mini-choice ${state.sequence.includes(item.id) ? "selected" : ""}" data-step="${item.id}">
+              <strong>${escapeHtml(item.title)}</strong>
+            </button>
+          `).join("")}
+        </div>
+        <div class="mini-display-card">
+          <span>Your order</span>
+          <strong>${state.sequence.length ? escapeHtml(state.sequence.map((id) => puzzle.options.find((item) => item.id === id)?.title || id).join(" -> ")) : "Tap the actions in order"}</strong>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="reset-mini">Reset</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-step]").forEach((button) => {
+      bindAction(button, () => {
+        if (state.sequence.includes(button.dataset.step) || state.sequence.length >= puzzle.sequence.length) {
+          return;
+        }
+        playSound("click");
+        state.sequence.push(button.dataset.step);
+        if (state.sequence.join("|") === puzzle.sequence.join("|")) {
+          render();
+          unlock();
+          return;
+        }
+        if (state.sequence.length === puzzle.sequence.length) {
+          render();
+          return;
+        }
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="reset-mini"]'), () => {
+      playSound("click");
+      state.sequence = [];
+      render();
+    });
+  };
+
+  render();
+}
+
+function renderInterludePairedChoice(puzzle, mount, unlock) {
+  const state = { connection: null, vpn: false };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-choice-grid">
+          ${puzzle.connections.map((item) => `
+            <button class="mini-choice ${state.connection === item.id ? "selected" : ""}" data-connection="${item.id}">
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>${escapeHtml(item.body)}</span>
+            </button>
+          `).join("")}
+        </div>
+        <button class="toggle-tile ${state.vpn ? "active" : ""}" data-action="vpn-toggle">
+          <div class="toggle-header">
+            <strong>Company VPN</strong>
+            <span class="toggle-state">${state.vpn ? "On" : "Off"}</span>
+          </div>
+          <p class="tiny-copy">Keep traffic protected while working away from the office.</p>
+        </button>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Confirm Plan</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-connection]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.connection = button.dataset.connection;
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="vpn-toggle"]'), () => {
+      playSound("click");
+      state.vpn = !state.vpn;
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.connection === puzzle.correctConnection && state.vpn) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeComboBuild(puzzle, mount, unlock) {
+  const state = { selected: new Set() };
+  const required = new Set(puzzle.required);
+
+  const render = () => {
+    const output = puzzle.keys.filter((key) => state.selected.has(key)).join(" + ");
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-chip-row">
+          ${puzzle.keys.map((key) => `
+            <button class="fragment ${state.selected.has(key) ? "selected" : ""}" data-key="${key}">
+              <strong>${escapeHtml(key)}</strong>
+            </button>
+          `).join("")}
+        </div>
+        <div class="mini-display-card">
+          <span>Shortcut</span>
+          <strong>${escapeHtml(output || "Select the correct keys")}</strong>
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Check Shortcut</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-key]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        toggleSetSelection(state.selected, button.dataset.key);
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.selected.size === required.size && [...required].every((key) => state.selected.has(key))) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeClassifyCard(puzzle, mount, unlock) {
+  const state = { selected: null };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-display-card mini-display-left">
+          <span>Document</span>
+          <strong>Weekly team rota</strong>
+          <p>Shared with staff for normal internal office planning.</p>
+        </div>
+        <div class="mini-chip-row">
+          ${puzzle.labels.map((label) => `
+            <button class="fragment ${state.selected === label ? "selected" : ""}" data-label="${label}">
+              <strong>${escapeHtml(label)}</strong>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-label]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.selected = button.dataset.label;
+        render();
+        if (state.selected === puzzle.correct) {
+          unlock();
+        }
+      });
+    });
+  };
+
+  render();
+}
+
+function renderInterludeUrlSegment(puzzle, mount, unlock) {
+  const state = { selected: null };
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-url-bar">
+          ${puzzle.segments.map((segment) => `
+            <button class="mini-segment ${state.selected === segment.id ? "selected" : ""}" data-segment="${segment.id}">
+              ${escapeHtml(segment.label)}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-segment]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.selected = button.dataset.segment;
+        render();
+        if (state.selected === puzzle.correct) {
+          unlock();
+        }
+      });
+    });
+  };
+
+  render();
+}
+
+function renderInterludeSlotBuilder(puzzle, mount, unlock) {
+  const state = { plan: [] };
+  const required = new Set(puzzle.required);
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-slot-grid">
+          ${Array.from({ length: puzzle.slots }, (_, index) => `
+            <div class="mini-slot">
+              <span>Slot ${index + 1}</span>
+              <strong>${escapeHtml(puzzle.options.find((item) => item.id === state.plan[index])?.title || "Choose an item below")}</strong>
+            </div>
+          `).join("")}
+        </div>
+        <div class="mini-choice-grid">
+          ${puzzle.options.map((item) => `
+            <button class="mini-choice ${state.plan.includes(item.id) ? "selected" : ""}" data-plan="${item.id}">
+              <strong>${escapeHtml(item.title)}</strong>
+            </button>
+          `).join("")}
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="reset-mini">Reset Plan</button>
+          <button class="secondary-btn" data-action="check-mini">Check Plan</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-plan]").forEach((button) => {
+      bindAction(button, () => {
+        const choice = button.dataset.plan;
+        if (state.plan.includes(choice) || state.plan.length >= puzzle.slots) {
+          return;
+        }
+        playSound("click");
+        state.plan.push(choice);
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="reset-mini"]'), () => {
+      playSound("click");
+      state.plan = [];
+      render();
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      if (state.plan.length === required.size && state.plan.every((id) => required.has(id))) {
+        unlock();
+      }
+    });
+  };
+
+  render();
+}
+
+function renderInterludeTimelineRank(puzzle, mount, unlock) {
+  const state = { ranks: {} };
+  const ranks = [1, 2, 3];
+
+  const render = () => {
+    mount.innerHTML = `
+      <div class="mini-puzzle">
+        <div class="mini-timeline-grid">
+          ${puzzle.steps.map((step) => `
+            <div class="mini-timeline-card">
+              <strong>${escapeHtml(step.title)}</strong>
+              <div class="mini-rank-row">
+                ${ranks.map((rank) => `
+                  <button class="mini-rank ${state.ranks[step.id] === rank ? "selected" : ""}" data-rank-step="${step.id}" data-rank-value="${rank}">
+                    ${rank}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+        <div class="panel-actions">
+          <button class="secondary-btn" data-action="check-mini">Check Order</button>
+        </div>
+      </div>
+    `;
+
+    mount.querySelectorAll("[data-rank-step]").forEach((button) => {
+      bindAction(button, () => {
+        playSound("click");
+        state.ranks[button.dataset.rankStep] = Number(button.dataset.rankValue);
+        render();
+      });
+    });
+
+    bindAction(mount.querySelector('[data-action="check-mini"]'), () => {
+      const allChosen = puzzle.steps.every((step) => state.ranks[step.id]);
+      const exactMatch = puzzle.steps.every((step) => state.ranks[step.id] === puzzle.correctRanks[step.id]);
+      if (allChosen && exactMatch) {
+        unlock();
+      }
+    });
+  };
+
+  render();
 }
 
 function renderCoachPanel(guide) {
@@ -878,6 +1744,7 @@ function renderResults() {
     ? Math.max(1, Math.round((new Date(appState.sessionFinishedAt) - new Date(appState.sessionStartedAt)) / 1000))
     : 0;
   const rating = appState.risk <= 25 ? "Office Guardian" : appState.risk <= 55 ? "Security Learner" : "Needs More Practice";
+  const badgeTitle = appState.risk <= 25 ? "Gold Office Shield" : appState.risk <= 55 ? "Silver Safety Badge" : "Bronze Practice Badge";
   const ending = appState.risk >= 70
     ? "The participant completed the game, but the company would still need extra support."
     : "The participant completed the game with a good level of workplace security awareness.";
@@ -894,10 +1761,6 @@ function renderResults() {
       </div>
 
       <div class="result-grid">
-        <article class="result-stat">
-          <span class="eyebrow">Participant</span>
-          <strong>${escapeHtml(appState.participantName)}</strong>
-        </article>
         <article class="result-stat">
           <span class="eyebrow">Score</span>
           <strong>${appState.score}</strong>
@@ -916,7 +1779,7 @@ function renderResults() {
         <div class="result-card">
           <h3>Research Record</h3>
           <p id="serverStatusText">Data collection status: ${escapeHtml(appState.serverStatus)}</p>
-          <p class="tiny-copy">Time taken: ${formatDuration(appState.sessionDurationSeconds)}. Wrong tasks: ${appState.mistakes}. If the local or online server is running, the participant result will be stored for supervision and later review.</p>
+          <p class="tiny-copy">Time taken: ${formatDuration(appState.sessionDurationSeconds)}. Wrong tasks: ${appState.mistakes}. If the local or online server is running, the anonymous participant result will be stored for supervision and later review.</p>
           <div class="panel-actions">
             <button class="primary-btn" data-action="save-result">Save Result Now</button>
             <a class="secondary-btn" href="supervisor-dashboard.html">Open Supervisor Dashboard</a>
@@ -924,24 +1787,24 @@ function renderResults() {
         </div>
 
         <div class="result-card">
-          <h3>Certificate</h3>
-          <div class="certificate-preview">
-            <div class="certificate-ribbon">CyberSafe Office</div>
-            <div class="certificate-inner">
-              <p class="certificate-label">Certificate of Completion</p>
-              <p class="tiny-copy">Presented to</p>
-              <h4>${escapeHtml(appState.participantName)}</h4>
-              <p>has successfully completed the Workplace Security Challenge for office staff beginners.</p>
-              <div class="certificate-meta">
+          <h3>Trophy Badge</h3>
+          <div class="badge-preview">
+            <div class="badge-glow"></div>
+            <div class="badge-core">
+              <div class="badge-crown">TROPHY</div>
+              <div class="badge-medal">${appState.risk <= 25 ? "G" : appState.risk <= 55 ? "S" : "B"}</div>
+              <h4>${badgeTitle}</h4>
+              <p>Unlocked for completing the CyberSafe Office workplace awareness challenge.</p>
+              <div class="badge-meta">
                 <span>Score: ${appState.score}</span>
                 <span>Tasks Correct: ${appState.correctCount}/${TASKS.length}</span>
                 <span>Time: ${formatDuration(appState.sessionDurationSeconds)}</span>
               </div>
-              <div class="certificate-seal">Verified Training Award</div>
+              <div class="badge-seal">${rating}</div>
             </div>
           </div>
           <div class="panel-actions">
-            <button class="primary-btn" data-action="download-certificate">Download PDF Certificate</button>
+            <button class="primary-btn" data-action="download-badge">Celebrate Badge</button>
             <button class="secondary-btn" data-action="restart-game">Play Again</button>
           </div>
         </div>
@@ -950,15 +1813,15 @@ function renderResults() {
   `;
 
   bindAction(sceneContainer.querySelector('[data-action="save-result"]'), saveSubmission);
-  bindAction(sceneContainer.querySelector('[data-action="download-certificate"]'), downloadCertificatePdf);
+  bindAction(sceneContainer.querySelector('[data-action="download-badge"]'), celebrateBadge);
   bindAction(sceneContainer.querySelector('[data-action="restart-game"]'), startGame);
 
   saveSubmission();
 
   setLog([
-    `${appState.participantName} completed the game.`,
+    `Participant ${appState.participantName} completed the game.`,
     `Final score: ${appState.score}. Tasks correct: ${appState.correctCount}/${TASKS.length}. Time taken: ${formatDuration(appState.sessionDurationSeconds)}.`,
-    `Data collection status: ${appState.serverStatus}.`,
+    `Badge unlocked: ${badgeTitle}. Data collection status: ${appState.serverStatus}.`,
   ]);
 }
 
@@ -1010,40 +1873,15 @@ function updateServerStatus(text) {
   }
 }
 
-function downloadCertificatePdf() {
+function celebrateBadge() {
   playSound("click");
-  const dateText = new Date().toLocaleDateString();
-  const timeText = new Date().toLocaleTimeString();
-  const certificateId = `CSO-${Date.now()}`;
   const rating = appState.risk <= 25 ? "Office Guardian" : appState.risk <= 55 ? "Security Learner" : "Needs More Practice";
-  const lines = [
-    "CyberSafe Office Certificate",
-    "Certificate of Completion",
-    sanitizePdfText(appState.participantName),
-    "completed the CyberSafe Office Workplace Security Challenge.",
-    `Score: ${appState.score}`,
-    `Tasks Completed Correctly: ${appState.correctCount} of ${TASKS.length}`,
-    `Wrong Tasks: ${appState.mistakes}`,
-    `Retries Used: ${appState.totalRetries}`,
-    `Final Risk Level: ${appState.risk}%`,
-    `Award Rating: ${rating}`,
-    `Time Taken: ${formatDuration(appState.sessionDurationSeconds)}`,
-    `Completion Date: ${dateText}`,
-    `Completion Time: ${timeText}`,
-    `Certificate ID: ${certificateId}`,
-    "Training Audience: Office workers with no cybersecurity background",
-  ];
-
-  const pdfBytes = buildSimplePdf(lines);
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${appState.participantName.replace(/[^a-z0-9]+/gi, "_") || "participant"}_certificate.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  updateServerStatus(`Saved successfully. Badge unlocked: ${rating}`);
+  setLog([
+    `Badge celebrated for ${appState.participantName}.`,
+    `Reward tier: ${rating}.`,
+    "The participant can replay to try for a stronger badge.",
+  ]);
 }
 
 function buildSimplePdf(lines) {
@@ -2280,6 +3118,11 @@ function formatDuration(totalSeconds) {
   const mins = Math.floor(seconds / 60);
   const secs = String(seconds % 60).padStart(2, "0");
   return `${mins}m ${secs}s`;
+}
+
+function generateParticipantAlias() {
+  const stamp = Date.now().toString().slice(-6);
+  return `Participant-${stamp}`;
 }
 
 function clamp(value, min, max) {
