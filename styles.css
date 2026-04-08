@@ -23,17 +23,20 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
+  line-height: 1.45;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
   background:
     radial-gradient(circle at top left, rgba(255, 213, 110, 0.12), transparent 22%),
     radial-gradient(circle at top right, rgba(125, 242, 196, 0.15), transparent 24%),
     radial-gradient(circle at 50% 20%, rgba(95, 145, 255, 0.14), transparent 28%),
     linear-gradient(155deg, var(--bg-a), var(--bg-b) 52%, #121f35 100%);
+  overflow-x: hidden;
 }
 
 button,
 input {
   font: inherit;
+  touch-action: manipulation;
 }
 
 button {
@@ -42,6 +45,32 @@ button {
 
 .app-shell {
   padding: 24px;
+}
+
+.participant-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 28px);
+}
+
+.participant-topbar {
+  position: sticky;
+  top: 12px;
+  z-index: 15;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: rgba(10, 18, 33, 0.88);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
+.participant-topbar h1 {
+  font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+}
+
+.participant-status-strip {
+  justify-content: flex-end;
 }
 
 .topbar {
@@ -132,11 +161,20 @@ button {
   align-items: stretch;
 }
 
+.participant-dashboard {
+  grid-template-columns: minmax(0, 1.58fr) minmax(320px, 0.88fr);
+  align-items: start;
+}
+
 .story-panel {
   position: relative;
   overflow: hidden;
   border-radius: 30px;
   min-height: 760px;
+}
+
+.participant-story-panel {
+  min-height: clamp(720px, 82vh, 980px);
 }
 
 .story-panel::after {
@@ -189,6 +227,12 @@ button {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.participant-intel-panel {
+  position: sticky;
+  top: 118px;
+  align-self: start;
 }
 
 .intel-card {
@@ -310,6 +354,10 @@ button {
   min-height: 676px;
 }
 
+.hero-copy {
+  max-width: 58rem;
+}
+
 .hero-copy p {
   max-width: 58ch;
   color: var(--muted);
@@ -368,7 +416,7 @@ button {
 }
 
 .hero-grid {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
 .coach-panel {
@@ -561,6 +609,10 @@ button {
   margin-bottom: 0;
   max-width: 62ch;
   color: var(--muted);
+}
+
+.task-header h2 {
+  font-size: clamp(1.45rem, 2.4vw, 2.25rem);
 }
 
 .tag {
@@ -817,6 +869,12 @@ button {
   padding: 16px;
 }
 
+.mail-list,
+.action-list,
+.ip-list {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 .mail-card h3 {
   margin-bottom: 8px;
 }
@@ -872,6 +930,21 @@ button {
   content: "Tap here to move selected";
   color: rgba(168, 191, 217, 0.72);
   font-size: 0.76rem;
+}
+
+.mail-card,
+.action-tile,
+.toggle-tile,
+.fragment,
+.mini-choice,
+.mini-drop,
+.mini-segment,
+.mini-rank,
+.drop-zone,
+.primary-btn,
+.secondary-btn,
+.mini-btn {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .drop-zone strong {
@@ -1016,7 +1089,7 @@ button {
 }
 
 .result-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .badge-preview {
@@ -1482,6 +1555,20 @@ body[data-topic="results"] .story-panel::after {
     grid-template-columns: 1fr;
   }
 
+  .participant-topbar {
+    position: static;
+  }
+
+  .participant-intel-panel {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .participant-intel-panel .log-card {
+    grid-column: 1 / -1;
+  }
+
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1522,6 +1609,10 @@ body[data-topic="results"] .story-panel::after {
     padding: 18px;
   }
 
+  .participant-dashboard {
+    gap: 14px;
+  }
+
   .task-grid.two,
   .drop-zones,
   .fragment-grid,
@@ -1551,6 +1642,12 @@ body[data-topic="results"] .story-panel::after {
     min-height: 180px;
   }
 
+  .event-log {
+    max-height: 240px;
+    overflow: auto;
+    padding-right: 4px;
+  }
+
   .card-quick-actions .mini-btn,
   .sticky-actions .secondary-btn,
   .sticky-actions .mini-btn {
@@ -1563,6 +1660,19 @@ body[data-topic="results"] .story-panel::after {
   .app-shell,
   .story-content {
     padding: 16px;
+  }
+
+  .participant-shell {
+    padding: 10px;
+  }
+
+  .participant-topbar {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .participant-topbar h1 {
+    font-size: 1.55rem;
   }
 
   .topbar,
@@ -1581,6 +1691,22 @@ body[data-topic="results"] .story-panel::after {
 
   .status-strip {
     width: 100%;
+  }
+
+  .status-pill {
+    padding: 12px;
+  }
+
+  .status-pill strong {
+    font-size: 1rem;
+  }
+
+  .participant-intel-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .participant-story-panel {
+    min-height: auto;
   }
 
   .dashboard-actions,
@@ -1602,6 +1728,26 @@ body[data-topic="results"] .story-panel::after {
   .mini-choice-grid,
   .mini-chip-row {
     grid-template-columns: 1fr;
+  }
+
+  .mail-list,
+  .action-list,
+  .ip-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mail-card,
+  .action-tile,
+  .toggle-tile,
+  .fragment,
+  .drop-zone,
+  .mini-choice,
+  .mini-drop {
+    min-height: 56px;
+  }
+
+  .story-content {
+    padding: 18px 14px 20px;
   }
 }
 
@@ -1632,6 +1778,16 @@ body[data-topic="results"] .story-panel::after {
     gap: 10px;
   }
 
+  .hero {
+    gap: 18px;
+    min-height: auto;
+  }
+
+  .hero-copy p,
+  .task-header p {
+    max-width: none;
+  }
+
   .scene-chip,
   .status-pill,
   .panel-card,
@@ -1640,5 +1796,31 @@ body[data-topic="results"] .story-panel::after {
   .coach-card,
   .interlude-card {
     border-radius: 18px;
+  }
+
+  .scene-chip {
+    min-height: 102px;
+    padding: 16px;
+  }
+
+  .drop-zone {
+    min-height: 150px;
+    padding: 14px;
+  }
+
+  .badge-preview,
+  .badge-core {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .badge-medal {
+    width: 74px;
+    height: 74px;
+    font-size: 1.7rem;
+  }
+
+  .badge-core h4 {
+    font-size: 1.45rem;
   }
 }
